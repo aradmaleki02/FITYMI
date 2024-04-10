@@ -285,7 +285,7 @@ def display(image_list, title):
   return plt
 
 
-def get_mvtec(label=7, train=True):
+def get_mvtec(label=7, train=True, normal=False):
     test_ds_mvtech = MVTecDataset(root=root, train=False, category=categories[label], transform=transform,
                                   count=test_count)
     train_ds_mvtech_normal = MVTecDataset(root=root, train=True, category=categories[label], transform=transform,
@@ -300,12 +300,16 @@ def get_mvtec(label=7, train=True):
     trainset = torch.utils.data.ConcatDataset([train_ds_mvtech_normal, train_ds_mvtech_anomaly])
     batch_size = 64
     train_loader = torch.utils.data.DataLoader(trainset, shuffle=True, batch_size=batch_size)
-    test_loader = torch.utils.data.DataLoader(test_ds_mvtech, shuffle=True, batch_size=batch_size)
+    test_loader = torch.utils.data.DataLoader(test_ds_mvtech, shuffle=False, batch_size=batch_size)
+    train_loader_normal = torch.utils.data.DataLoader(train_ds_mvtech_normal, shuffle=True, batch_size=batch_size)
     x, y = next(iter(train_loader))
     display(x[0:10], y[0:10])
     if train:
+        if normal:
+            return train_loader_normal
         return train_loader
     return test_loader
+
 
 def get_nomral_dataset(dataset_name, label, data_path, download, normal_transform):
     if dataset_name == 'cifar10':
@@ -313,6 +317,8 @@ def get_nomral_dataset(dataset_name, label, data_path, download, normal_transfor
     elif dataset_name == 'cifar100':
         normal_train_ds = CIFAR100(data_path, train=True, download=download)
         normal_train_ds.targets = sparse_to_coarse(normal_train_ds.targets)
+    elif dataset_name == 'mvtec':
+        return get_mvtec(label, normal=True)
     else:
         raise NotImplementedError()
     normal_data = normal_train_ds.data[np.array(normal_train_ds.targets) == label]
