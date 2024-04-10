@@ -28,7 +28,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     # General arguments
-    parser.add_argument('--dataset', choices=['cifar10', 'cifar100'], default='cifar10',
+    parser.add_argument('--dataset', choices=['cifar10', 'cifar100', 'mvtec'], default='cifar10',
                         help='The dataset used in the anomaly detection task')
     parser.add_argument('--epochs', default=30, type=int, help='The number of training epochs')
     parser.add_argument('--label', default=7, type=int, help='The normal class label')
