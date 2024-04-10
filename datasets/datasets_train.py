@@ -289,7 +289,7 @@ def display(image_list, title):
   return plt
 
 
-def get_mvtec(label=7):
+def get_mvtec(label=7, train=True):
     test_ds_mvtech = MVTecDataset(root=root, train=False, category=categories[label], transform=transform,
                                   count=test_count)
     train_ds_mvtech_normal = MVTecDataset(root=root, train=True, category=categories[label], transform=transform,
@@ -304,10 +304,12 @@ def get_mvtec(label=7):
     trainset = torch.utils.data.ConcatDataset([train_ds_mvtech_normal, train_ds_mvtech_anomaly])
     batch_size = 64
     train_loader = torch.utils.data.DataLoader(trainset, shuffle=True, batch_size=batch_size)
-    train_loader_normal = torch.utils.data.DataLoader(train_ds_mvtech_normal, shuffle=True, batch_size=batch_size)
+    test_loader = torch.utils.data.DataLoader(test_ds_mvtech, shuffle=True, batch_size=batch_size)
     x, y = next(iter(train_loader))
     display(x[0:10], y[0:10])
-    return train_loader
+    if train:
+        return train_loader
+    return test_loader
 
 def get_nomral_dataset(dataset_name, label, data_path, download, normal_transform):
     if dataset_name == 'cifar10':
