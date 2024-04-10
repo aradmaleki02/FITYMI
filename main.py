@@ -19,6 +19,7 @@ def main(args):
     model = VisionTransformer(config, args.vit_image_size, num_classes=2, zero_head=True)
     model.load_from(np.load(args.pretrained_path))
     model = model.to(device)
+    evaluate_model(args, model, device)
     model = train_model(args, model, device)
     save_model(model, os.path.join(args.output_dir, f'{args.backbone}_{args.dataset}_{args.label}.npy'))
     evaluate_model(args, model, device)
