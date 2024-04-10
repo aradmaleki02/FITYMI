@@ -31,7 +31,7 @@ if __name__ == "__main__":
     parser.add_argument('--dataset', choices=['cifar10', 'cifar100'], default='cifar10',
                         help='The dataset used in the anomaly detection task')
     parser.add_argument('--epochs', default=30, type=int, help='The number of training epochs')
-    parser.add_argument('--label', default=0, type=int, help='The normal class label')
+    parser.add_argument('--label', default=7, type=int, help='The normal class label')
     parser.add_argument('--learning_rate', type=float, default=4e-4, help='The initial learning rate of the optimizer')
     parser.add_argument('--weight_decay', type=float, default=5e-5, help='The weight decay of the optimizer')
     parser.add_argument('--train_batch_size', default=16, type=int)
