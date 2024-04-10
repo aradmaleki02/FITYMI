@@ -13,9 +13,6 @@ import pandas as pd
 from sklearn.metrics import roc_auc_score
 from tqdm import tqdm
 
-from datasets.datasets_test import get_normal_dataset_test, get_test_loader_one_vs_all, get_test_loader_one_vs_one
-
-
 import torch
 from PIL import Image
 from torchvision import transforms
