@@ -16,11 +16,13 @@ def main(args):
     device = torch.device(f"cuda" if torch.cuda.is_available() else "cpu")
     print(f'Dataset: {args.dataset}, Normal Label: {args.label}')
     config = CONFIGS[args.backbone]
+    finetune = args.finetune
     model = VisionTransformer(config, args.vit_image_size, num_classes=2, zero_head=True)
     model.load_from(np.load(args.pretrained_path))
     model = model.to(device)
     evaluate_model(args, model, device)
-    model = train_model(args, model, device)
+    if finetune:
+        model = train_model(args, model, device)
     save_model(model, os.path.join(args.output_dir, f'{args.backbone}_{args.dataset}_{args.label}.npy'))
     evaluate_model(args, model, device)
 
@@ -47,12 +49,29 @@ if __name__ == "__main__":
                         help="Whether to download datasets or not")
     parser.add_argument('--nnd', action='store_true',
                         help="Whether to evaluate on the NND setting or not")
+    parser.add_argument('--finetune', choices=[1, 0], default=1, help='fine-tune or not')
 
     # Backbone arguments
     parser.add_argument('--backbone', choices=['ViT-B_16'], default='ViT-B_16', type=str, help='The ViT backbone type')
     parser.add_argument('--vit_image_size', default=224, type=int, help='The input image size of the ViT backbone')
     parser.add_argument('--pretrained_path', default='ViT-B_16.npz', type=str,
                         help='The path to the pretrained ViT weights')
+
+    # args = {
+    #     '--dataset': 'mvtec',
+    #     '--epochs': 30,
+    #     '--label': 7,
+    #     '--learning-rate': 4e-4,
+    #     '--weight_decay': 5e-5,
+    #     '--train_batch_size': 16,
+    #     '--eval_batch_size': 16,
+    #     '--output_dir': 'results',
+    #     '--normal_data_path': 'data',
+    #     '--gen_data_path': 'cifar10_training_gen_data.npy',
+    #     '--backbone': 'ViT-B_16',
+    #     '--vit_image_size': 224,
+    #     '--pretrained_path': 'ViT-B_16.npz'
+    # }
 
     args = parser.parse_args()
 
