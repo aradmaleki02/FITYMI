@@ -76,7 +76,7 @@ class MVTecDataset(Dataset):
             imagenet30_img = Image.open(imagenet30_sel)
             imagenet30_img = trans(imagenet30_img)
             imagenet30_img = to_pil(imagenet30_img)
-            new_size = int(shrink * image.size), int(shrink * image.size)
+            new_size = int(shrink * image.size[0]), int(shrink * image.size[0])
             image = image.resize(new_size)
             pad_x = (imagenet30_img.width - image.width) // 2
             pad_y = (imagenet30_img.height - image.height) // 2
@@ -294,7 +294,7 @@ class MVTecCutpastDataset(Dataset):
             imagenet30_img = trans(imagenet30_img)
             imagenet30_img = to_pil(imagenet30_img)
             print(image.size)
-            new_size = int(shrink * image.size), int(shrink * image.size)
+            new_size = int(shrink * image.size[0]), int(shrink * image.size[1])
             image = image.resize(new_size)
             pad_x = (imagenet30_img.width - image.width) // 2
             pad_y = (imagenet30_img.height - image.height) // 2
