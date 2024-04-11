@@ -21,7 +21,7 @@ def main(args):
     model.load_from(np.load(args.pretrained_path))
     model = model.to(device)
     evaluate_model(args, model, device)
-    if finetune:
+    if finetune == 1:
         model = train_model(args, model, device)
     save_model(model, os.path.join(args.output_dir, f'{args.backbone}_{args.dataset}_{args.label}.npy'))
     evaluate_model(args, model, device)
