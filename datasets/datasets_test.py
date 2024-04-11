@@ -249,6 +249,7 @@ class MVTecCutpastDataset(Dataset):
                 self.image_files = self.image_files[:count]
             else:
                 t = len(self.image_files)
+                print(len(self.image_files))
                 for i in range(count-len(self.image_files)):
                     self.image_files.append(random.choice(self.image_files[:t]))
 
