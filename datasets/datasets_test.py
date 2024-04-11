@@ -80,7 +80,7 @@ class MVTecDataset(Dataset):
 
 categories = ['toothbrush', 'zipper', 'transistor', 'tile', 'grid', 'wood', 'pill', 'bottle', 'capsule', 'metal_nut',
               'hazelnut', 'screw', 'carpet', 'leather', 'cable']
-root = './mvtec_anomaly_detection'
+root = '/kaggle/input/mvtecad-mvtec-anomaly-detection/mvtec_anomaly_detection'
 count = 3000
 fake_count = None  # 150
 test_count = None  # 110
