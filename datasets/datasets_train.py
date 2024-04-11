@@ -132,9 +132,14 @@ class MVTecDataset(Dataset):
 
         if self.pad == 1 and self.train:
             shrink = random.uniform(0.8, 1)
-            resizeTransf = transforms.Resize(int(224 * shrink), 3)
+            # resizeTransf = transforms.Resize(int(224 * shrink), 3)
             imagenet30_img = imagenet30_testset[int(random.random() * len(imagenet30_testset))][0].resize((224, 224))
-            image = resizeTransf(image)
+            new_size = int(shrink * 224), int(shrink * 224)
+            image = image.resize(new_size)
+            pad_x = (imagenet30_img.width - image.width) // 2
+            pad_y = (imagenet30_img.height - image.height) // 2
+            imagenet30_img.paste(image, (pad_x, pad_y))
+            image = imagenet30_img
         return image, target
 
     def __len__(self):
@@ -334,9 +339,14 @@ class MVTecCutpastDataset(Dataset):
 
         if self.pad == 1 and self.train:
             shrink = random.uniform(0.8, 1)
-            resizeTransf = transforms.Resize(int(224 * shrink), 3)
+            # resizeTransf = transforms.Resize(int(224 * shrink), 3)
             imagenet30_img = imagenet30_testset[int(random.random() * len(imagenet30_testset))][0].resize((224, 224))
-            image = resizeTransf(image)
+            new_size = int(shrink * 224), int(shrink * 224)
+            image = image.resize(new_size)
+            pad_x = (imagenet30_img.width - image.width) // 2
+            pad_y = (imagenet30_img.height - image.height) // 2
+            imagenet30_img.paste(image, (pad_x, pad_y))
+            image = imagenet30_img
         return image, target
 
     def __len__(self):
