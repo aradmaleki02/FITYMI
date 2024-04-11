@@ -117,7 +117,8 @@ class MVTecDataset(Dataset):
 
     def __getitem__(self, index):
         image_file = self.image_files[index]
-        image = Image.open(image_file)
+        image = Image.fromarray(image_file)
+        # image = Image.open(image_file)
         image = image.convert('RGB')
         if self.transform is not None:
             image = self.transform(image)
@@ -322,7 +323,7 @@ class MVTecCutpastDataset(Dataset):
 
     def __getitem__(self, index):
         image_file = self.image_files[index]
-        image = Image.open(image_file)
+        image = Image.fromarray(image_file)
         image = image.convert('RGB')
         if self.transform is not None:
             image = self.transform(image)
