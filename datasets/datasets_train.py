@@ -117,7 +117,7 @@ class MVTecDataset(Dataset):
 
     def __getitem__(self, index):
         image_file = self.image_files[index]
-        image = default_loader(image_file)
+        image = Image.open(image_file)
         image = image.convert('RGB')
         if self.transform is not None:
             image = self.transform(image)
@@ -134,6 +134,7 @@ class MVTecDataset(Dataset):
             resizeTransf = transforms.Resize(int(224 * shrink), 3)
             imagenet30_img = imagenet30_testset[int(random.random() * len(imagenet30_testset))][0].resize((224, 224))
             image = resizeTransf(image)
+            print(type(imagenet30_img), type(image))
             image = center_paste(imagenet30_img, image)
         return image, target
 
@@ -322,7 +323,7 @@ class MVTecCutpastDataset(Dataset):
 
     def __getitem__(self, index):
         image_file = self.image_files[index]
-        image = default_loader(image_file)
+        image = Image.open(image_file)
         image = image.convert('RGB')
         if self.transform is not None:
             image = self.transform(image)
