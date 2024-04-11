@@ -135,11 +135,6 @@ class MVTecDataset(Dataset):
             resizeTransf = transforms.Resize(int(224 * shrink), 3)
             imagenet30_img = imagenet30_testset[int(random.random() * len(imagenet30_testset))][0].resize((224, 224))
             image = resizeTransf(image)
-            to_pil = torchvision.transforms.ToPILImage()
-            image = to_pil(image)
-            image = center_paste(imagenet30_img, image)
-            to_tensor = torchvision.transforms.PILToTensor()
-            image = to_tensor(image)
         return image, target
 
     def __len__(self):
@@ -342,11 +337,6 @@ class MVTecCutpastDataset(Dataset):
             resizeTransf = transforms.Resize(int(224 * shrink), 3)
             imagenet30_img = imagenet30_testset[int(random.random() * len(imagenet30_testset))][0].resize((224, 224))
             image = resizeTransf(image)
-            to_pil = torchvision.transforms.ToPILImage()
-            image = to_pil(image)
-            image = center_paste(imagenet30_img, image)
-            to_tensor = torchvision.transforms.PILToTensor()
-            image = to_tensor(image)
         return image, target
 
     def __len__(self):
