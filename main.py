@@ -25,6 +25,7 @@ def main(args):
         model = train_model(args, model, device)
     save_model(model, os.path.join(args.output_dir, f'{args.backbone}_{args.dataset}_{args.label}.npy'))
     evaluate_model(args, model, device)
+    return model
 
 
 if __name__ == "__main__":

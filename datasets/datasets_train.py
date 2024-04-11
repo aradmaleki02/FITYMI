@@ -269,6 +269,11 @@ class MVTecCutpastDataset(Dataset):
     def __getitem__(self, index):
         image_file = self.image_files[index]
         image = Image.open(image_file)
+        image = image.convert('RGB')
+        if self.transform is not None:
+            image = self.transform(image)
+        to_pil = torchvision.transforms.ToPILImage()
+        image = to_pil(image)
 
         if os.path.dirname(image_file).endswith("good"):
             target = 1
@@ -288,9 +293,8 @@ class MVTecCutpastDataset(Dataset):
             imagenet30_img.paste(image, (pad_x, pad_y))
             image = imagenet30_img
 
-        image = image.convert('RGB')
-        if self.transform is not None:
-            image = self.transform(image)
+        to_tensor = transforms.ToTensor()
+        image = to_tensor(image)
         return image, target
 
     def __len__(self):
