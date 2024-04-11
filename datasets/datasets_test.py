@@ -54,6 +54,7 @@ class MVTecDataset(Dataset):
                 self.image_files = self.image_files[:count]
             else:
                 t = len(self.image_files)
+                print(t)
                 for i in range(count - len(self.image_files)):
                     self.image_files.append(random.choice(self.image_files[:t]))
 
