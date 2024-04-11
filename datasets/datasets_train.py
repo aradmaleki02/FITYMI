@@ -57,7 +57,11 @@ class MVTecDataset(Dataset):
     def __getitem__(self, index):
         image_file = self.image_files[index]
         image = Image.open(image_file)
-
+        image = image.convert('RGB')
+        if self.transform is not None:
+            image = self.transform(image)
+        to_pil = torchvision.transforms.ToPILImage()
+        image = to_pil(image)
 
 
         if os.path.dirname(image_file).endswith("good"):
@@ -71,16 +75,16 @@ class MVTecDataset(Dataset):
             imagenet_path = glob('/kaggle/input/imagenet30-dataset/one_class_test/one_class_test/*/*/*')
             imagenet30_sel = random.choice(imagenet_path)
             imagenet30_img = Image.open(imagenet30_sel)
-            new_size = int(shrink * 224), int(shrink * 224)
+            new_size = int(shrink * image.size), int(shrink * image.size)
             image = image.resize(new_size)
             pad_x = (imagenet30_img.width - image.width) // 2
             pad_y = (imagenet30_img.height - image.height) // 2
             imagenet30_img.paste(image, (pad_x, pad_y))
             image = imagenet30_img
 
-        image = image.convert('RGB')
-        if self.transform is not None:
-            image = self.transform(image)
+        to_tensor = transforms.ToTensor()
+        image = to_tensor(image)
+
         return image, target
 
     def __len__(self):
@@ -287,7 +291,7 @@ class MVTecCutpastDataset(Dataset):
             imagenet30_sel = random.choice(imagenet_path)
             imagenet30_img = Image.open(imagenet30_sel)
             print(image.size)
-            new_size = int(shrink * 224), int(shrink * 224)
+            new_size = int(shrink * image.size), int(shrink * image.size)
             image = image.resize(new_size)
             print(image.size)
             pad_x = (imagenet30_img.width - image.width) // 2

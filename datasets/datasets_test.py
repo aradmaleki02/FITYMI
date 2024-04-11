@@ -31,11 +31,7 @@ transform = transforms.Compose([
     transforms.CenterCrop(224),
     transforms.ToTensor()
 ])
-fake_transform = transforms.Compose([
-    transforms.Resize((255, 255)),
-    transforms.CenterCrop(224),
-    transforms.ToTensor()
-])
+
 
 
 class MVTecDataset(Dataset):
