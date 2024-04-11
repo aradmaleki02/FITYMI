@@ -83,6 +83,7 @@ class MVTecDataset(Dataset):
             imagenet30_img.paste(image, (pad_x, pad_y))
             image = imagenet30_img
 
+        image = image.convert('RGB')
         to_tensor = transforms.ToTensor()
         image = to_tensor(image)
 
@@ -293,7 +294,6 @@ class MVTecCutpastDataset(Dataset):
             imagenet30_img = Image.open(imagenet30_sel)
             imagenet30_img = trans(imagenet30_img)
             imagenet30_img = to_pil(imagenet30_img)
-            print(image.size)
             new_size = int(shrink * image.size[0]), int(shrink * image.size[1])
             image = image.resize(new_size)
             pad_x = (imagenet30_img.width - image.width) // 2
@@ -301,6 +301,7 @@ class MVTecCutpastDataset(Dataset):
             imagenet30_img.paste(image, (pad_x, pad_y))
             image = imagenet30_img
 
+        image = image.convert('RGB')
         to_tensor = transforms.ToTensor()
         image = to_tensor(image)
         return image, target
