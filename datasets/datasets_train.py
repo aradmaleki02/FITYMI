@@ -57,9 +57,6 @@ class MVTecDataset(Dataset):
     def __getitem__(self, index):
         image_file = self.image_files[index]
         image = Image.open(image_file)
-        image = image.convert('RGB')
-        if self.transform is not None:
-            image = self.transform(image)
 
 
 
@@ -80,6 +77,10 @@ class MVTecDataset(Dataset):
             pad_y = (imagenet30_img.height - image.height) // 2
             imagenet30_img.paste(image, (pad_x, pad_y))
             image = imagenet30_img
+
+        image = image.convert('RGB')
+        if self.transform is not None:
+            image = self.transform(image)
         return image, target
 
     def __len__(self):
@@ -268,9 +269,6 @@ class MVTecCutpastDataset(Dataset):
     def __getitem__(self, index):
         image_file = self.image_files[index]
         image = Image.open(image_file)
-        image = image.convert('RGB')
-        if self.transform is not None:
-            image = self.transform(image)
 
         if os.path.dirname(image_file).endswith("good"):
             target = 1
@@ -289,6 +287,10 @@ class MVTecCutpastDataset(Dataset):
             pad_y = (imagenet30_img.height - image.height) // 2
             imagenet30_img.paste(image, (pad_x, pad_y))
             image = imagenet30_img
+
+        image = image.convert('RGB')
+        if self.transform is not None:
+            image = self.transform(image)
         return image, target
 
     def __len__(self):
