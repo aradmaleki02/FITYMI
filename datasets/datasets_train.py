@@ -24,12 +24,79 @@ transform = transforms.Compose([
     transforms.ToTensor()
 ])
 
+from torch.utils.data import Dataset
+from PIL import ImageFilter, Image, ImageOps
+from torchvision.datasets.folder import default_loader
+import os
 
+
+class IMAGENET30_TEST_DATASET(Dataset):
+    def __init__(self, root_dir="imagenet30-dataset/one_class_test/one_class_test/", transform=None):
+        """
+        Args:
+            root_dir (string): Directory with all the classes.
+            transform (callable, optional): Optional transform to be applied
+                on a sample.
+        """
+        self.root_dir = root_dir
+        self.transform = transform
+        self.img_path_list = []
+        self.targets = []
+
+        # Map each class to an index
+        self.class_to_idx = {cls_name: idx for idx, cls_name in enumerate(sorted(os.listdir(root_dir)))}
+        print(f"self.class_to_idx in ImageNet30_Test_Dataset:\n{self.class_to_idx}")
+
+        # Walk through the directory and collect information about the images and their labels
+        for i, class_name in enumerate(os.listdir(root_dir)):
+            class_path = os.path.join(root_dir, class_name)
+            for instance_folder in os.listdir(class_path):
+                instance_path = os.path.join(class_path, instance_folder)
+                if instance_path != "imagenet30-dataset/one_class_test/one_class_test/airliner/._1.JPEG":
+                    for img_name in os.listdir(instance_path):
+                        if img_name.endswith('.JPEG'):
+                            img_path = os.path.join(instance_path, img_name)
+                            # image = Image.open(img_path).convert('RGB')
+                            self.img_path_list.append(img_path)
+                            self.targets.append(self.class_to_idx[class_name])
+
+    def __len__(self):
+        return len(self.img_path_list)
+
+    def __getitem__(self, idx):
+        img_path = self.img_path_list[idx]
+        image = default_loader(img_path)
+        label = self.targets[idx]
+        if self.transform:
+            image = self.transform(image)
+        return image, label
+
+
+imagenet30_testset = IMAGENET30_TEST_DATASET()
+
+
+def center_paste(large_img, small_img):
+    # Calculate the center position
+    large_width, large_height = large_img.size
+    small_width, small_height = small_img.size
+
+    # Calculate the top-left position
+    left = (large_width - small_width) // 2
+    top = (large_height - small_height) // 2
+
+    # Create a copy of the large image to keep the original unchanged
+    result_img = large_img.copy()
+
+    # Paste the small image onto the large one at the calculated position
+    result_img.paste(small_img, (left, top))
+
+    return result_img
 
 class MVTecDataset(Dataset):
-    def __init__(self, root, category, transform=None, train=True, count=None):
+    def __init__(self, root, category, transform=None, train=True, count=None, pad=0):
         self.transform = transform
         self.image_files = []
+        self.pad = pad
         if train:
             self.image_files = glob(os.path.join(root, category, "train", "good", "*.png"))
         else:
@@ -55,10 +122,19 @@ class MVTecDataset(Dataset):
         if self.transform is not None:
             image = self.transform(image)
 
+
+
         if os.path.dirname(image_file).endswith("good"):
             target = 0
         else:
             target = 1
+
+        if self.pad == 1 and self.train:
+            shrink = random.uniform(0.8, 1)
+            resizeTransf = transforms.Resize(int(224 * shrink), 3)
+            imagenet30_img = imagenet30_testset[int(random.random() * len(imagenet30_testset))][0].resize((224, 224))
+            image = resizeTransf(image)
+            image = center_paste(imagenet30_img, image)
         return image, target
 
     def __len__(self):
@@ -222,9 +298,10 @@ class CutPaste3Way(object):
 
 
 class MVTecCutpastDataset(Dataset):
-    def __init__(self, root, category, transform=None, train=True, count=None):
+    def __init__(self, root, category, transform=None, train=True, count=None, pad=0):
         self.transform = transform
         self.image_files = []
+        self.pad = pad
         if train:
             self.image_files = glob(os.path.join(root, category, "train", "good", "*.png"))
         else:
@@ -254,6 +331,13 @@ class MVTecCutpastDataset(Dataset):
             target = 1
         else:
             target = 1
+
+        if self.pad == 1 and self.train:
+            shrink = random.uniform(0.8, 1)
+            resizeTransf = transforms.Resize(int(224 * shrink), 3)
+            imagenet30_img = imagenet30_testset[int(random.random() * len(imagenet30_testset))][0].resize((224, 224))
+            image = resizeTransf(image)
+            image = center_paste(imagenet30_img, image)
         return image, target
 
     def __len__(self):
@@ -275,35 +359,20 @@ def get_train_transforms():
     return transform_train
 
 
-def display(image_list, title):
-  plt.figure(figsize=(10, 10), constrained_layout = True)
-  for i, img in enumerate(image_list):
-    ax = plt.subplot(1, len(image_list), i+1)
-    plt.imshow(img.permute(1, 2, 0), cmap='gray')
-    plt.title (title[i])
-    plt.axis('off')
-  return plt
 
-
-def get_mvtec(label=7, train=True, normal=False):
-    test_ds_mvtech = MVTecDataset(root=root, train=False, category=categories[label], transform=transform,
+def get_mvtec(args, train=True, normal=False):
+    test_ds_mvtech = MVTecDataset(root=root, train=False, category=categories[args.label], transform=transform,
                                   count=test_count)
-    train_ds_mvtech_normal = MVTecDataset(root=root, train=True, category=categories[label], transform=transform,
-                                          count=count)
-    train_ds_mvtech_anomaly = MVTecCutpastDataset(root=root, train=True, category=categories[label],
-                                                  transform=cutpast_transform, count=count)
-    num_plt = 300
-    display([train_ds_mvtech_normal[i][0] for i in range(num_plt, num_plt + 10)],
-            [train_ds_mvtech_normal[i][1] for i in range(num_plt, num_plt + 10)])
-    display([train_ds_mvtech_anomaly[i][0] for i in range(num_plt, num_plt + 10)],
-            [train_ds_mvtech_anomaly[i][1] for i in range(num_plt, num_plt + 10)])
+    train_ds_mvtech_normal = MVTecDataset(root=root, train=True, category=categories[args.label], transform=transform,
+                                          count=count, pad=args.normal_pad)
+    train_ds_mvtech_anomaly = MVTecCutpastDataset(root=root, train=True, category=categories[args.label],
+                                                  transform=cutpast_transform, count=count, pad=args.anomaly_pad)
+
     trainset = torch.utils.data.ConcatDataset([train_ds_mvtech_normal, train_ds_mvtech_anomaly])
     batch_size = 64
     train_loader = torch.utils.data.DataLoader(trainset, shuffle=True, batch_size=batch_size)
     test_loader = torch.utils.data.DataLoader(test_ds_mvtech, shuffle=False, batch_size=batch_size)
     train_loader_normal = torch.utils.data.DataLoader(train_ds_mvtech_normal, shuffle=True, batch_size=batch_size)
-    x, y = next(iter(train_loader))
-    display(x[0:10], y[0:10])
     if train:
         if normal:
             return train_loader_normal
@@ -335,7 +404,7 @@ def get_gen_dataset(label, gen_data_path, gen_data_len):
 
 def get_full_train_loader(args):
     if args.dataset == 'mvtec':
-        return get_mvtec(args.label)
+        return get_mvtec(args)
     normal_train_ds = get_nomral_dataset(args.dataset, args.label, args.normal_data_path, args.download_dataset,
                                          get_train_transforms())
     gen_ds = get_gen_dataset(args.label, args.gen_data_path, len(normal_train_ds))
