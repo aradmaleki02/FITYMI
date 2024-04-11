@@ -49,7 +49,7 @@ if __name__ == "__main__":
                         help="Whether to download datasets or not")
     parser.add_argument('--nnd', action='store_true',
                         help="Whether to evaluate on the NND setting or not")
-    parser.add_argument('--finetune', choices=[1, 0], default=1, help='fine-tune or not')
+    parser.add_argument('--finetune', choices=[1, 0], type=int, default=1, help='fine-tune or not')
 
     # Backbone arguments
     parser.add_argument('--backbone', choices=['ViT-B_16'], default='ViT-B_16', type=str, help='The ViT backbone type')
