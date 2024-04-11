@@ -70,7 +70,8 @@ class MVTecDataset(Dataset):
             # resizeTransf = transforms.Resize(int(224 * shrink), 3)
             imagenet_path = glob('/kaggle/input/imagenet30-dataset/one_class_test/one_class_test/*/*/*')
             print('len(path_imgnet) = ', len(imagenet_path))
-            imagenet30_img = random.choice(imagenet_path)
+            imagenet30_sel = random.choice(imagenet_path)
+            imagenet30_img = Image.open(imagenet30_sel)
             new_size = int(shrink * 224), int(shrink * 224)
             image = image.resize(new_size)
             pad_x = (imagenet30_img.width - image.width) // 2
@@ -280,7 +281,8 @@ class MVTecCutpastDataset(Dataset):
             # resizeTransf = transforms.Resize(int(224 * shrink), 3)
             imagenet_path = glob('/kaggle/input/imagenet30-dataset/one_class_test/one_class_test/*/*/*')
             print('len(path_imgnet) = ', len(imagenet_path))
-            imagenet30_img = random.choice(imagenet_path)
+            imagenet30_sel = random.choice(imagenet_path)
+            imagenet30_img = Image.open(imagenet30_sel)
             new_size = int(shrink * 224), int(shrink * 224)
             image = image.resize(new_size)
             pad_x = (imagenet30_img.width - image.width) // 2
