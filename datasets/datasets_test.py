@@ -54,7 +54,6 @@ class MVTecDataset(Dataset):
                 self.image_files = self.image_files[:count]
             else:
                 t = len(self.image_files)
-                print(t)
                 for i in range(count - len(self.image_files)):
                     self.image_files.append(random.choice(self.image_files[:t]))
 
@@ -81,7 +80,7 @@ class MVTecDataset(Dataset):
 categories = ['toothbrush', 'zipper', 'transistor', 'tile', 'grid', 'wood', 'pill', 'bottle', 'capsule', 'metal_nut',
               'hazelnut', 'screw', 'carpet', 'leather', 'cable']
 root = '/kaggle/input/mvtecad-mvtec-anomaly-detection/mvtec_anomaly_detection'
-count = 3000
+count = 500
 fake_count = None  # 150
 test_count = None  # 110
 
@@ -250,7 +249,6 @@ class MVTecCutpastDataset(Dataset):
                 self.image_files = self.image_files[:count]
             else:
                 t = len(self.image_files)
-                print(len(self.image_files))
                 for i in range(count-len(self.image_files)):
                     self.image_files.append(random.choice(self.image_files[:t]))
 
