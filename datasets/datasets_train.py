@@ -68,20 +68,20 @@ class MVTecDataset(Dataset):
         else:
             target = 1
 
-        # if self.pad == 1 and self.train:
-        #     shrink = random.uniform(0.8, 1)
-        #     # resizeTransf = transforms.Resize(int(224 * shrink), 3)
-        #     imagenet_path = glob('/kaggle/input/imagenet30-dataset/one_class_test/one_class_test/*/*/*')
-        #     imagenet30_sel = random.choice(imagenet_path)
-        #     imagenet30_img = Image.open(imagenet30_sel)
-        #     imagenet30_img = trans(imagenet30_img)
-        #     imagenet30_img = to_pil(imagenet30_img)
-        #     new_size = int(shrink * image.size), int(shrink * image.size)
-        #     image = image.resize(new_size)
-        #     pad_x = (imagenet30_img.width - image.width) // 2
-        #     pad_y = (imagenet30_img.height - image.height) // 2
-        #     imagenet30_img.paste(image, (pad_x, pad_y))
-        #     image = imagenet30_img
+        if self.pad == 1 and self.train:
+            shrink = random.uniform(0.8, 1)
+            # resizeTransf = transforms.Resize(int(224 * shrink), 3)
+            imagenet_path = glob('/kaggle/input/imagenet30-dataset/one_class_test/one_class_test/*/*/*')
+            imagenet30_sel = random.choice(imagenet_path)
+            imagenet30_img = Image.open(imagenet30_sel)
+            imagenet30_img = trans(imagenet30_img)
+            imagenet30_img = to_pil(imagenet30_img)
+            new_size = int(shrink * image.size), int(shrink * image.size)
+            image = image.resize(new_size)
+            pad_x = (imagenet30_img.width - image.width) // 2
+            pad_y = (imagenet30_img.height - image.height) // 2
+            imagenet30_img.paste(image, (pad_x, pad_y))
+            image = imagenet30_img
 
         to_tensor = transforms.ToTensor()
         image = to_tensor(image)
@@ -293,6 +293,7 @@ class MVTecCutpastDataset(Dataset):
             imagenet30_img = Image.open(imagenet30_sel)
             imagenet30_img = trans(imagenet30_img)
             imagenet30_img = to_pil(imagenet30_img)
+            print(image.size)
             new_size = int(shrink * image.size), int(shrink * image.size)
             image = image.resize(new_size)
             pad_x = (imagenet30_img.width - image.width) // 2
