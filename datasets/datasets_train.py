@@ -19,7 +19,7 @@ import os
 import faiss
 from sklearn.metrics import roc_auc_score
 
-transform = transforms.Compose([
+trans = transforms.Compose([
     transforms.Resize((255, 255)),
     transforms.CenterCrop(224),
     transforms.ToTensor()
@@ -75,8 +75,7 @@ class MVTecDataset(Dataset):
             imagenet_path = glob('/kaggle/input/imagenet30-dataset/one_class_test/one_class_test/*/*/*')
             imagenet30_sel = random.choice(imagenet_path)
             imagenet30_img = Image.open(imagenet30_sel)
-            if self.transform is not None:
-                imagenet30_img = self.transform(imagenet30_img)
+            imagenet30_img = trans(imagenet30_img)
             imagenet30_img = to_pil(imagenet30_img)
             new_size = int(shrink * image.size), int(shrink * image.size)
             image = image.resize(new_size)
@@ -293,8 +292,7 @@ class MVTecCutpastDataset(Dataset):
             imagenet_path = glob('/kaggle/input/imagenet30-dataset/one_class_test/one_class_test/*/*/*')
             imagenet30_sel = random.choice(imagenet_path)
             imagenet30_img = Image.open(imagenet30_sel)
-            if self.transform is not None:
-                imagenet30_img = self.transform(imagenet30_img)
+            imagenet30_img = trans(imagenet30_img)
             imagenet30_img = to_pil(imagenet30_img)
             new_size = int(shrink * image.size), int(shrink * image.size)
             image = image.resize(new_size)
