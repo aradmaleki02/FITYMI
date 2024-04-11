@@ -328,8 +328,8 @@ def get_test_transforms():
     return transform_test
 
 
-def get_normal_dataset_test(dataset_name, label, data_path, download, batch_size):
-    normal_train_loader = get_nomral_dataset(dataset_name, label, data_path, download, get_test_transforms())
+def get_normal_dataset_test(dataset_name, label, data_path, download, batch_size, args):
+    normal_train_loader = get_nomral_dataset(dataset_name, label, data_path, download, get_test_transforms(), args)
     return normal_train_loader
 
 

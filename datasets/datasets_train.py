@@ -380,14 +380,14 @@ def get_mvtec(args, train=True, normal=False):
     return test_loader
 
 
-def get_nomral_dataset(dataset_name, label, data_path, download, normal_transform):
+def get_nomral_dataset(dataset_name, label, data_path, download, normal_transform, args):
     if dataset_name == 'cifar10':
         normal_train_ds = CIFAR10(data_path, train=True, download=download)
     elif dataset_name == 'cifar100':
         normal_train_ds = CIFAR100(data_path, train=True, download=download)
         normal_train_ds.targets = sparse_to_coarse(normal_train_ds.targets)
     elif dataset_name == 'mvtec':
-        return get_mvtec(label, normal=True)
+        return get_mvtec(args, normal=True)
     else:
         raise NotImplementedError()
     normal_data = normal_train_ds.data[np.array(normal_train_ds.targets) == label]
@@ -406,7 +406,7 @@ def get_full_train_loader(args):
     if args.dataset == 'mvtec':
         return get_mvtec(args)
     normal_train_ds = get_nomral_dataset(args.dataset, args.label, args.normal_data_path, args.download_dataset,
-                                         get_train_transforms())
+                                         get_train_transforms(), args)
     gen_ds = get_gen_dataset(args.label, args.gen_data_path, len(normal_train_ds))
     train_ds = ConcatDataset([normal_train_ds, gen_ds])
     train_loader = DataLoader(train_ds, batch_size=args.train_batch_size, shuffle=True)

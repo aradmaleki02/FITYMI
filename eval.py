@@ -371,7 +371,7 @@ def evaluate_model(args, model, device):
     final_results = {}
     model.eval()
     normal_train_loader = get_normal_dataset_test(args.dataset, args.label, args.normal_data_path,
-                                                  args.download_dataset, args.eval_batch_size)
+                                                  args.download_dataset, args.eval_batch_size, args)
     print('Extract training feature space')
     train_feature_space, _ = extract_feature_space(model, device, normal_train_loader)
     print('Evaluate on the One-vs-All setting:')
