@@ -1,4 +1,5 @@
 import numpy as np
+import torchvision.transforms
 from torch.utils.data import ConcatDataset, DataLoader
 from torchvision import transforms
 from torchvision.datasets import CIFAR10, CIFAR100
@@ -134,7 +135,8 @@ class MVTecDataset(Dataset):
             resizeTransf = transforms.Resize(int(224 * shrink), 3)
             imagenet30_img = imagenet30_testset[int(random.random() * len(imagenet30_testset))][0].resize((224, 224))
             image = resizeTransf(image)
-            print(type(imagenet30_img), type(image))
+            to_pil = torchvision.transforms.ToPILImage()
+            image = to_pil(image)
             image = center_paste(imagenet30_img, image)
         return image, target
 
@@ -338,6 +340,8 @@ class MVTecCutpastDataset(Dataset):
             resizeTransf = transforms.Resize(int(224 * shrink), 3)
             imagenet30_img = imagenet30_testset[int(random.random() * len(imagenet30_testset))][0].resize((224, 224))
             image = resizeTransf(image)
+            to_pil = torchvision.transforms.ToPILImage()
+            image = to_pil(image)
             image = center_paste(imagenet30_img, image)
         return image, target
 
