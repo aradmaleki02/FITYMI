@@ -138,6 +138,8 @@ class MVTecDataset(Dataset):
             to_pil = torchvision.transforms.ToPILImage()
             image = to_pil(image)
             image = center_paste(imagenet30_img, image)
+            to_tensor = torchvision.transforms.PILToTensor()
+            image = to_tensor(image)
         return image, target
 
     def __len__(self):
@@ -343,6 +345,8 @@ class MVTecCutpastDataset(Dataset):
             to_pil = torchvision.transforms.ToPILImage()
             image = to_pil(image)
             image = center_paste(imagenet30_img, image)
+            to_tensor = torchvision.transforms.PILToTensor()
+            image = to_tensor(image)
         return image, target
 
     def __len__(self):
