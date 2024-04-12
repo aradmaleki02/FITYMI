@@ -45,6 +45,7 @@ class MVTecDataset(Dataset):
             normal_image_files = glob(os.path.join(root, category, "test", "good", "*.png"))
             anomaly_image_files = list(set(image_files) - set(normal_image_files))
             self.image_files = image_files
+            print(len(image_files), len(normal_image_files, len(anomaly_image_files)))
         if count:
             if count < len(self.image_files):
                 self.image_files = self.image_files[:count]
@@ -295,9 +296,9 @@ def display(image_list, title):
 
 def get_mvtec(label=7, train=True):
     test_ds_mvtech = MVTecDataset(root=root, train=False, category=categories[label], transform=transform)
-    train_ds_mvtech_normal = MVTecDataset(root=root, train=True, category=categories[label], transform=transform)
+    train_ds_mvtech_normal = MVTecDataset(root=root, train=True, category=categories[label], transform=transform, count=count)
     train_ds_mvtech_anomaly = MVTecCutpastDataset(root=root, train=True, category=categories[label],
-                                                  transform=cutpast_transform)
+                                                  transform=cutpast_transform, count=count)
     num_plt = 300
     display([train_ds_mvtech_normal[i][0] for i in range(num_plt, num_plt + 10)],
             [train_ds_mvtech_normal[i][1] for i in range(num_plt, num_plt + 10)])
