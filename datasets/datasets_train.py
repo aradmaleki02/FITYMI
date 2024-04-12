@@ -20,8 +20,9 @@ import faiss
 from sklearn.metrics import roc_auc_score
 
 trans = transforms.Compose([
-    transforms.Resize((255, 255)),
+    transforms.Resize(256),
     transforms.CenterCrop(224),
+    transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
@@ -318,8 +319,9 @@ class MVTecCutpastDataset(Dataset):
 
 
 cutpast_transform = transforms.Compose([
-    transforms.Resize((255, 255)),
+    transforms.Resize(256),
     transforms.CenterCrop(224),
+    transforms.RandomHorizontalFlip(),
     CutPasteUnion(transform=transforms.Compose([transforms.ToTensor(), ])),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
