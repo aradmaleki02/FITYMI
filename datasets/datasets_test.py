@@ -294,12 +294,10 @@ def display(image_list, title):
 
 
 def get_mvtec(label=7, train=True):
-    test_ds_mvtech = MVTecDataset(root=root, train=False, category=categories[label], transform=transform,
-                                  count=test_count)
-    train_ds_mvtech_normal = MVTecDataset(root=root, train=True, category=categories[label], transform=transform,
-                                          count=count)
+    test_ds_mvtech = MVTecDataset(root=root, train=False, category=categories[label], transform=transform)
+    train_ds_mvtech_normal = MVTecDataset(root=root, train=True, category=categories[label], transform=transform)
     train_ds_mvtech_anomaly = MVTecCutpastDataset(root=root, train=True, category=categories[label],
-                                                  transform=cutpast_transform, count=count)
+                                                  transform=cutpast_transform)
     num_plt = 300
     display([train_ds_mvtech_normal[i][0] for i in range(num_plt, num_plt + 10)],
             [train_ds_mvtech_normal[i][1] for i in range(num_plt, num_plt + 10)])

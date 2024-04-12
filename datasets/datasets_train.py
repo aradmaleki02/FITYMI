@@ -328,12 +328,10 @@ def get_train_transforms():
 
 def get_mvtec(args, train=True, normal=False):
     print('getting loader')
-    test_ds_mvtech = MVTecDataset(root=root, train=False, category=categories[args.label], transform=trans,
-                                  count=test_count)
-    train_ds_mvtech_normal = MVTecDataset(root=root, train=True, category=categories[args.label], transform=trans,
-                                          count=count, pad=args.normal_pad)
+    test_ds_mvtech = MVTecDataset(root=root, train=False, category=categories[args.label], transform=trans)
+    train_ds_mvtech_normal = MVTecDataset(root=root, train=True, category=categories[args.label], transform=trans, pad=args.normal_pad)
     train_ds_mvtech_anomaly = MVTecCutpastDataset(root=root, train=True, category=categories[args.label],
-                                                  transform=cutpast_transform, count=count, pad=args.anomaly_pad)
+                                                  transform=cutpast_transform, pad=args.anomaly_pad)
 
     trainset = torch.utils.data.ConcatDataset([train_ds_mvtech_normal, train_ds_mvtech_anomaly])
     batch_size = 64
