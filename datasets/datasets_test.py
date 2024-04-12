@@ -45,7 +45,7 @@ class MVTecDataset(Dataset):
             normal_image_files = glob(os.path.join(root, category, "test", "good", "*.png"))
             anomaly_image_files = list(set(image_files) - set(normal_image_files))
             self.image_files = image_files
-            print(len(image_files), len(normal_image_files, len(anomaly_image_files)))
+            print(len(image_files), len(normal_image_files), len(anomaly_image_files))
         if count:
             if count < len(self.image_files):
                 self.image_files = self.image_files[:count]
