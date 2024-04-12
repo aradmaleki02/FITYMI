@@ -22,7 +22,8 @@ from sklearn.metrics import roc_auc_score
 trans = transforms.Compose([
     transforms.Resize((255, 255)),
     transforms.CenterCrop(224),
-    transforms.ToTensor()
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
 from torch.utils.data import Dataset
@@ -320,6 +321,7 @@ cutpast_transform = transforms.Compose([
     transforms.Resize((255, 255)),
     transforms.CenterCrop(224),
     CutPasteUnion(transform=transforms.Compose([transforms.ToTensor(), ])),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
 
@@ -335,7 +337,8 @@ def get_train_transforms():
 def get_mvtec(args, train=True, normal=False):
     print('getting loader')
     test_ds_mvtech = MVTecDataset(root=root, train=False, category=categories[args.label], transform=trans)
-    train_ds_mvtech_normal = MVTecDataset(root=root, train=True, category=categories[args.label], transform=trans, pad=args.normal_pad, count=count)
+    train_ds_mvtech_normal = MVTecDataset(root=root, train=True, category=categories[args.label], transform=trans,
+                                          pad=args.normal_pad, count=count)
     train_ds_mvtech_anomaly = MVTecCutpastDataset(root=root, train=True, category=categories[args.label],
                                                   transform=cutpast_transform, pad=args.anomaly_pad, count=count)
 

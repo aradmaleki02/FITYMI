@@ -29,9 +29,9 @@ from glob import glob
 trans = transforms.Compose([
     transforms.Resize((255, 255)),
     transforms.CenterCrop(224),
-    transforms.ToTensor()
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
-
 
 
 class MVTecDataset(Dataset):
@@ -268,11 +268,11 @@ class MVTecCutpastDataset(Dataset):
             anomaly_image_files = list(set(image_files) - set(normal_image_files))
             self.image_files = image_files
         if count:
-            if count<len(self.image_files):
+            if count < len(self.image_files):
                 self.image_files = self.image_files[:count]
             else:
                 t = len(self.image_files)
-                for i in range(count-len(self.image_files)):
+                for i in range(count - len(self.image_files)):
                     self.image_files.append(random.choice(self.image_files[:t]))
 
         self.image_files.sort(key=lambda y: y.lower())
@@ -294,11 +294,13 @@ class MVTecCutpastDataset(Dataset):
     def __len__(self):
         return len(self.image_files)
 
+
 cutpast_transform = transforms.Compose([
     transforms.Resize((255, 255)),
     transforms.CenterCrop(224),
-    CutPasteUnion(transform = transforms.Compose([transforms.ToTensor(),])),
-    ])
+    CutPasteUnion(transform=transforms.Compose([transforms.ToTensor(), ])),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
 
 
 def get_train_transforms():
@@ -310,11 +312,11 @@ def get_train_transforms():
     return transform_train
 
 
-
-
 def get_mvtec(label=7, train=True, pad=0, shrink=None):
-    test_ds_mvtech = MVTecDataset(root=root, train=False, category=categories[label], transform=trans, pad=pad, sh=shrink)
-    train_ds_mvtech_normal = MVTecDataset(root=root, train=True, category=categories[label], transform=trans, count=count,
+    test_ds_mvtech = MVTecDataset(root=root, train=False, category=categories[label], transform=trans, pad=pad,
+                                  sh=shrink)
+    train_ds_mvtech_normal = MVTecDataset(root=root, train=True, category=categories[label], transform=trans,
+                                          count=count,
                                           pad=pad, sh=shrink)
     train_ds_mvtech_anomaly = MVTecCutpastDataset(root=root, train=True, category=categories[label],
                                                   transform=cutpast_transform, count=count, pad=pad, sh=shrink)
