@@ -7,7 +7,6 @@ from tqdm import tqdm
 
 from datasets.datasets_test import get_normal_dataset_test, get_test_loader_one_vs_all, get_test_loader_one_vs_one
 
-
 import torch
 from PIL import Image
 from torchvision import transforms
@@ -240,11 +239,11 @@ class MVTecCutpastDataset(Dataset):
             anomaly_image_files = list(set(image_files) - set(normal_image_files))
             self.image_files = image_files
         if count:
-            if count<len(self.image_files):
+            if count < len(self.image_files):
                 self.image_files = self.image_files[:count]
             else:
                 t = len(self.image_files)
-                for i in range(count-len(self.image_files)):
+                for i in range(count - len(self.image_files)):
                     self.image_files.append(random.choice(self.image_files[:t]))
 
         self.image_files.sort(key=lambda y: y.lower())
@@ -266,11 +265,12 @@ class MVTecCutpastDataset(Dataset):
     def __len__(self):
         return len(self.image_files)
 
+
 cutpast_transform = transforms.Compose([
     transforms.Resize((255, 255)),
     transforms.CenterCrop(224),
-    CutPasteUnion(transform = transforms.Compose([transforms.ToTensor(),])),
-    ])
+    CutPasteUnion(transform=transforms.Compose([transforms.ToTensor(), ])),
+])
 
 
 def get_train_transforms():
@@ -283,13 +283,13 @@ def get_train_transforms():
 
 
 def display(image_list, title):
-  plt.figure(figsize=(10, 10), constrained_layout = True)
-  for i, img in enumerate(image_list):
-    ax = plt.subplot(1, len(image_list), i+1)
-    plt.imshow(img.permute(1, 2, 0), cmap='gray')
-    plt.title (title[i])
-    plt.axis('off')
-  return plt
+    plt.figure(figsize=(10, 10), constrained_layout=True)
+    for i, img in enumerate(image_list):
+        ax = plt.subplot(1, len(image_list), i + 1)
+        plt.imshow(img.permute(1, 2, 0), cmap='gray')
+        plt.title(title[i])
+        plt.axis('off')
+    return plt
 
 
 def get_mvtec(label=7, train=True):
@@ -357,9 +357,12 @@ def eval_one_vs_one(args, model, device, train_feature_space):
     return auc_results
 
 
-def eval_one_vs_all(args, model, device, train_feature_space):
-    test_loader_one_vs_all = get_test_loader_one_vs_all(args.dataset, args.label, args.normal_data_path,
-                                                        args.download_dataset, args.eval_batch_size)
+def eval_one_vs_all(args, model, device, train_feature_space, get_loader=False, loader=None):
+    if not get_loader:
+        test_loader_one_vs_all = get_test_loader_one_vs_all(args.dataset, args.label, args.normal_data_path,
+                                                            args.download_dataset, args.eval_batch_size)
+    else:
+        test_loader_one_vs_all = loader
     test_feature_space, test_labels = extract_feature_space(model, device, test_loader_one_vs_all)
     distances = knn_score(train_feature_space, test_feature_space)
     auc = roc_auc_score(test_labels, distances)
@@ -383,3 +386,18 @@ def evaluate_model(args, model, device):
         save_results(auc_one_vs_one, os.path.join(args.output_dir, f'results_all_one_vs_one_{args.label}.csv'))
         final_results['one_vs_one'] = min(auc_one_vs_one)
     save_results(final_results, os.path.join(args.output_dir, f'results_{args.dataset}_{args.label}.csv'))
+
+
+def get_eval_loaders(args):
+    normal_train_loader = get_normal_dataset_test(args.dataset, args.label, args.normal_data_path,
+                                                  args.download_dataset, args.eval_batch_size, args)
+    test_loader_one_vs_all = get_test_loader_one_vs_all(args.dataset, args.label, args.normal_data_path,
+                                                        args.download_dataset, args.eval_batch_size)
+    return normal_train_loader, test_loader_one_vs_all
+
+
+def eval_model_with_loader(args, model, device, normal_train_loader, test_loader):
+    print('Extract training feature space')
+    train_feature_space, _ = extract_feature_space(model, device, normal_train_loader)
+    print('Evaluate on the One-vs-All setting:')
+    auc_one_vs_all = eval_one_vs_all(args, model, device, train_feature_space, get_loader=True, loader=test_loader)
