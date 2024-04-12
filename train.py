@@ -32,5 +32,5 @@ def train_model(args, model, device):
             total_loss += loss.item() * x.size(0)
             train_bar.set_description(f'Training Epoch : {epoch}, Loss: {total_loss / total_num:.6f}')
         print("=" * 100)
-        eval.evaluate_model(args, model, device)
+        # eval.evaluate_model(args, model, device)
     return model
