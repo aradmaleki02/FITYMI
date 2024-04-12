@@ -32,10 +32,11 @@ import os
 
 
 class MVTecDataset(Dataset):
-    def __init__(self, root, category, transform=None, train=True, count=None, pad=0):
+    def __init__(self, root, category, transform=None, train=True, count=None, pad=0, sh=None):
         self.transform = transform
         self.image_files = []
         self.pad = pad
+        self.sh = sh
         if train:
             self.image_files = glob(os.path.join(root, category, "train", "good", "*.png"))
         else:
@@ -70,6 +71,8 @@ class MVTecDataset(Dataset):
 
         if self.pad == 1 and self.train:
             shrink = random.uniform(0.8, 1)
+            if self.sh is not None:
+                shrink = self.sh
             # resizeTransf = transforms.Resize(int(224 * shrink), 3)
             imagenet_path = glob('/kaggle/input/imagenet30-dataset/one_class_test/one_class_test/*/*/*')
             imagenet30_sel = random.choice(imagenet_path)
@@ -250,10 +253,11 @@ class CutPaste3Way(object):
 
 
 class MVTecCutpastDataset(Dataset):
-    def __init__(self, root, category, transform=None, train=True, count=None, pad=0):
+    def __init__(self, root, category, transform=None, train=True, count=None, pad=0, sh=None):
         self.transform = transform
         self.image_files = []
         self.pad = pad
+        self.sh = sh
         if train:
             self.image_files = glob(os.path.join(root, category, "train", "good", "*.png"))
         else:
@@ -288,6 +292,8 @@ class MVTecCutpastDataset(Dataset):
 
         if self.pad == 1 and self.train:
             shrink = random.uniform(0.8, 1)
+            if self.sh is not None:
+                shrink = self.sh
             # resizeTransf = transforms.Resize(int(224 * shrink), 3)
             imagenet_path = glob('/kaggle/input/imagenet30-dataset/one_class_test/one_class_test/*/*/*')
             imagenet30_sel = random.choice(imagenet_path)

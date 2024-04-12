@@ -26,7 +26,7 @@ from sklearn.metrics import roc_auc_score
 from torch.utils.data import Dataset
 from glob import glob
 
-transform = transforms.Compose([
+trans = transforms.Compose([
     transforms.Resize((255, 255)),
     transforms.CenterCrop(224),
     transforms.ToTensor()
@@ -35,9 +35,11 @@ transform = transforms.Compose([
 
 
 class MVTecDataset(Dataset):
-    def __init__(self, root, category, transform=None, train=True, count=None):
+    def __init__(self, root, category, transform=None, train=True, count=None, pad=0, sh=None):
         self.transform = transform
         self.image_files = []
+        self.pad = pad
+        self.sh = sh
         if train:
             self.image_files = glob(os.path.join(root, category, "train", "good", "*.png"))
         else:
@@ -63,11 +65,35 @@ class MVTecDataset(Dataset):
         image = image.convert('RGB')
         if self.transform is not None:
             image = self.transform(image)
+        to_pil = transforms.ToPILImage()
+        image = to_pil(image)
 
         if os.path.dirname(image_file).endswith("good"):
             target = 0
         else:
             target = 1
+
+        if self.pad == 1 and self.train:
+            shrink = random.uniform(0.8, 1)
+            if self.sh is not None:
+                shrink = self.sh
+            # resizeTransf = transforms.Resize(int(224 * shrink), 3)
+            imagenet_path = glob('/kaggle/input/imagenet30-dataset/one_class_test/one_class_test/*/*/*')
+            imagenet30_sel = random.choice(imagenet_path)
+            imagenet30_img = Image.open(imagenet30_sel)
+            imagenet30_img = trans(imagenet30_img)
+            imagenet30_img = to_pil(imagenet30_img)
+            new_size = int(shrink * image.size[0]), int(shrink * image.size[0])
+            image = image.resize(new_size)
+            pad_x = (imagenet30_img.width - image.width) // 2
+            pad_y = (imagenet30_img.height - image.height) // 2
+            imagenet30_img.paste(image, (pad_x, pad_y))
+            image = imagenet30_img
+
+        image = image.convert('RGB')
+        to_tensor = transforms.ToTensor()
+        image = to_tensor(image)
+
         return image, target
 
     def __len__(self):
@@ -231,7 +257,7 @@ class CutPaste3Way(object):
 
 
 class MVTecCutpastDataset(Dataset):
-    def __init__(self, root, category, transform=None, train=True, count=None):
+    def __init__(self, root, category, transform=None, train=True, count=None, pad=0, sh=None):
         self.transform = transform
         self.image_files = []
         if train:
@@ -284,32 +310,19 @@ def get_train_transforms():
     return transform_train
 
 
-def display(image_list, title):
-  plt.figure(figsize=(10, 10), constrained_layout = True)
-  for i, img in enumerate(image_list):
-    ax = plt.subplot(1, len(image_list), i+1)
-    plt.imshow(img.permute(1, 2, 0), cmap='gray')
-    plt.title (title[i])
-    plt.axis('off')
-  return plt
 
 
-def get_mvtec(label=7, train=True):
-    test_ds_mvtech = MVTecDataset(root=root, train=False, category=categories[label], transform=transform)
-    train_ds_mvtech_normal = MVTecDataset(root=root, train=True, category=categories[label], transform=transform, count=count)
+def get_mvtec(label=7, train=True, pad=0, shrink=None):
+    test_ds_mvtech = MVTecDataset(root=root, train=False, category=categories[label], transform=trans, pad=pad, sh=shrink)
+    train_ds_mvtech_normal = MVTecDataset(root=root, train=True, category=categories[label], transform=trans, count=count,
+                                          pad=pad, sh=shrink)
     train_ds_mvtech_anomaly = MVTecCutpastDataset(root=root, train=True, category=categories[label],
-                                                  transform=cutpast_transform, count=count)
-    num_plt = 300
-    display([train_ds_mvtech_normal[i][0] for i in range(num_plt, num_plt + 10)],
-            [train_ds_mvtech_normal[i][1] for i in range(num_plt, num_plt + 10)])
-    display([train_ds_mvtech_anomaly[i][0] for i in range(num_plt, num_plt + 10)],
-            [train_ds_mvtech_anomaly[i][1] for i in range(num_plt, num_plt + 10)])
+                                                  transform=cutpast_transform, count=count, pad=pad, sh=shrink)
+
     trainset = torch.utils.data.ConcatDataset([train_ds_mvtech_normal, train_ds_mvtech_anomaly])
     batch_size = 64
     train_loader = torch.utils.data.DataLoader(trainset, shuffle=True, batch_size=batch_size)
     test_loader = torch.utils.data.DataLoader(test_ds_mvtech, shuffle=True, batch_size=batch_size)
-    x, y = next(iter(train_loader))
-    display(x[0:10], y[0:10])
     if train:
         return train_loader
     return test_loader
