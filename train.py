@@ -13,7 +13,7 @@ def freeze_model(model, layers=6):
 
 
 def train_model(args, model, device, train_loader=None):
-    freeze_model(model)
+    # freeze_model(model)
     optimizer = SGD(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
     model.train()
     loss_funct = nn.CrossEntropyLoss()
