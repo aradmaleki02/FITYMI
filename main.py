@@ -20,6 +20,36 @@ def calc_eval(args, model, device, normal_train_loader, test_loader):
         eval.eval_model_with_loader(args, model, device, normal_train_loader, test_loader)
 
 
+import timm
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torchvision.models as models
+
+class Model_Resnet18(torch.nn.Module):
+    def __init__(self, pretrained=True, num_classes=2):
+        super().__init__()
+
+        mean = [0.485, 0.456, 0.406]
+        std = [0.229, 0.224, 0.225]
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        mu = torch.tensor(mean).view(3, 1, 1).to(device)
+        std = torch.tensor(std).view(3, 1, 1).to(device)
+
+        self.norm = lambda x: (x - mu) / std
+        self.pretrained = pretrained
+        self.backbone = models.resnet18(pretrained=pretrained)
+        self.backbone.fc = torch.nn.Identity()
+        self.output = torch.nn.Linear(512, num_classes)
+
+    def forward(self, x):
+        x = self.norm(x)
+        z1 = self.backbone(x)
+        z1 = F.normalize(z1, dim=-1)
+        out = self.output(z1)
+        return out, z1
+
+
 def main(args, train_loader=None, normal_train_loader=None, test_loader=None):
     device = torch.device(f"cuda" if torch.cuda.is_available() else "cpu")
     print(f'Dataset: {args.dataset}, Normal Label: {args.label}')
@@ -27,6 +57,8 @@ def main(args, train_loader=None, normal_train_loader=None, test_loader=None):
     finetune = args.finetune
     model = VisionTransformer(config, args.vit_image_size, num_classes=2, zero_head=True)
     model.load_from(np.load(args.pretrained_path))
+    if args.model == 'resnet':
+        model = Model_Resnet18(pretrained=False, num_classes=2)
     model = model.to(device)
     # evaluate_model(args, model, device)
     calc_eval(args, model, device, normal_train_loader, test_loader)
@@ -63,6 +95,7 @@ if __name__ == "__main__":
     parser.add_argument('--finetune', choices=[1, 0], type=int, default=1, help='fine-tune or not')
     parser.add_argument('--normal_pad', choices=[1, 0], type=int, default=0)
     parser.add_argument('--anomaly_pad', choices=[1, 0], type=int, default=0)
+    parser.add_argument('--model', choices=['resnet', 'vit'], default='vit')
 
     # Backbone arguments
     parser.add_argument('--backbone', choices=['ViT-B_16'], default='ViT-B_16', type=str, help='The ViT backbone type')
