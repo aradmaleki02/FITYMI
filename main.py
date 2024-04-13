@@ -32,9 +32,9 @@ def main(args, train_loader=None, normal_train_loader=None, test_loader=None):
     calc_eval(args, model, device, normal_train_loader, test_loader)
     if finetune == 1:
         model = train_model(args, model, device, train_loader=train_loader)
-    save_model(model, os.path.join(args.output_dir, f'{args.backbone}_{args.dataset}_{args.label}.npy'))
-    # evaluate_model(args, model, device)
-    calc_eval(args, model, device, normal_train_loader, test_loader)
+        save_model(model, os.path.join(args.output_dir, f'{args.backbone}_{args.dataset}_{args.label}.npy'))
+        # evaluate_model(args, model, device)
+        calc_eval(args, model, device, normal_train_loader, test_loader)
     return model
 
 
