@@ -3,6 +3,7 @@ import os
 import numpy as np
 import torch
 from eval import evaluate_model
+import eval
 from models.modeling import CONFIGS, VisionTransformer
 from train import train_model
 
@@ -12,7 +13,14 @@ def save_model(model, save_path):
     torch.save(model.state_dict(), save_path)
 
 
-def main(args):
+def calc_eval(args, model, device, normal_train_loader, test_loader):
+    if normal_train_loader is None or test_loader is None:
+        evaluate_model(args, model, device)
+    else:
+        eval.eval_model_with_loader(args, model, device, normal_train_loader, test_loader)
+
+
+def main(args, train_loader=None, normal_train_loader=None, test_loader=None):
     device = torch.device(f"cuda" if torch.cuda.is_available() else "cpu")
     print(f'Dataset: {args.dataset}, Normal Label: {args.label}')
     config = CONFIGS[args.backbone]
@@ -20,11 +28,13 @@ def main(args):
     model = VisionTransformer(config, args.vit_image_size, num_classes=2, zero_head=True)
     model.load_from(np.load(args.pretrained_path))
     model = model.to(device)
-    evaluate_model(args, model, device)
+    # evaluate_model(args, model, device)
+    calc_eval(args, model, device, normal_train_loader, test_loader)
     if finetune == 1:
-        model = train_model(args, model, device)
+        model = train_model(args, model, device, train_loader=train_loader)
     save_model(model, os.path.join(args.output_dir, f'{args.backbone}_{args.dataset}_{args.label}.npy'))
-    evaluate_model(args, model, device)
+    # evaluate_model(args, model, device)
+    calc_eval(args, model, device, normal_train_loader, test_loader)
     return model
 
 

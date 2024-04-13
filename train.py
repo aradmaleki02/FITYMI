@@ -12,12 +12,15 @@ def freeze_model(model, layers=6):
             p.requires_grad = False
 
 
-def train_model(args, model, device):
+def train_model(args, model, device, train_loader=None):
     freeze_model(model)
     optimizer = SGD(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
     model.train()
     loss_funct = nn.CrossEntropyLoss()
-    full_train_loader = get_full_train_loader(args)
+    if train_loader is None:
+        full_train_loader = get_full_train_loader(args)
+    else:
+        full_train_loader = train_loader
     for epoch in range(args.epochs):
         total_num, total_loss = 0, 0
         train_bar = tqdm(full_train_loader)
