@@ -59,6 +59,7 @@ def main(args, train_loader=None, normal_train_loader=None, test_loader=None):
     model.load_from(np.load(args.pretrained_path))
     if args.model == 'resnet':
         model = Model_Resnet18(pretrained=False, num_classes=2)
+        print('inja')
     model = model.to(device)
     # evaluate_model(args, model, device)
     calc_eval(args, model, device, normal_train_loader, test_loader)
